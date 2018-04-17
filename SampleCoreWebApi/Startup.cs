@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SampleCoreWebApi.BusinessLayer.IRepositories;
-using SampleCoreWebApi.BusinessLayer.Repositories;
+using Microsoft.Extensions.Logging;
 using SampleCoreWebApi.DataModel.Models;
-using SampleCoreWebApi.DataModel.UOWGenericRepo;
-using Swashbuckle.AspNetCore.Swagger;
+using SampleCoreWebApi.LogProvider;
 
 namespace SampleCoreWebApi
 {
@@ -33,17 +31,30 @@ namespace SampleCoreWebApi
 
             #endregion
 
-            //Extension method to include All repositories
+            #region  Extension method to include All repositories
+
             services.AddAllServices();
 
+            #endregion
+
+            #region Elmah
+
+
+            #endregion
 
             //services.AddResponseCompressionWithSettings();
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            //Read Connection String
+            var connection = Configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("Configuration.GetConnectionString(\"DefaultConnection\")");
+
+            // loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            // loggerFactory.AddDebug();
+            loggerFactory.AddContext(LogLevel.Error, connection);
 
             if (env.IsDevelopment())
             {
@@ -53,7 +64,7 @@ namespace SampleCoreWebApi
             {
                 app.UseExceptionHandler();
             }
-         
+
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();

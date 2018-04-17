@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using SampleCoreWebApi.BusinessEntities.EntityModels;
 using SampleCoreWebApi.BusinessLayer.IRepositories;
+using SampleCoreWebApi.LogProvider;
 
 
 namespace SampleCoreWebApi.Controllers
@@ -11,10 +13,12 @@ namespace SampleCoreWebApi.Controllers
     public class LeaderController : Controller
     {
         private readonly IPoliticalRepository _politicalRepository;
+        private readonly ILogger<LeaderController> _logger;
 
-        public LeaderController(IPoliticalRepository politicalRepository)
+        public LeaderController(IPoliticalRepository politicalRepository, ILogger<LeaderController> logger)
         {
             _politicalRepository = politicalRepository;
+            _logger = logger;
         }
 
 
@@ -31,12 +35,21 @@ namespace SampleCoreWebApi.Controllers
             try
             {
                 var result = await _politicalRepository.GetAllPoliticalLeaders();
-                return Ok(result);
+                if (result != null)
+                {
+                    return Ok(result);
+
+                }
+                else
+                {
+                    return Ok();
+                }
+
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
                 throw;
+
             }
         }
     }
