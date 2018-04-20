@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SampleCoreWebApi.BusinessEntities.EntityModels;
@@ -25,9 +27,9 @@ namespace SampleCoreWebApi.Controllers
         /// <returns>A newly created TodoItem</returns>
         /// <response code="201">Returns the newly created item</response>
         /// <response code="400">If the item is null</response>  
-        [HttpGet]
+        [HttpGet,Authorize]
         [Route("GetAllPoliticalLeader")]
-        [ProducesResponseType(typeof(Entity_PoliticalLeaders), 200)]
+        [ProducesResponseType(typeof(EntityPoliticalLeaders), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetAllPoliticalLeader()

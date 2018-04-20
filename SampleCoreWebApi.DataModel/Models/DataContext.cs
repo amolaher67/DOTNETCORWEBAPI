@@ -4,18 +4,15 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace SampleCoreWebApi.DataModel.Models
 {
-    public partial class DataContext : DbContext
+    public partial class ElectionContext : DbContext
     {
-        public DataContext(DbContextOptions<DataContext> options)
-            : base(options)
-        {
-        }
-
         public virtual DbSet<Constituencies> Constituencies { get; set; }
         public virtual DbSet<ConstituencyVillages> ConstituencyVillages { get; set; }
+        public virtual DbSet<EventLog> EventLog { get; set; }
         public virtual DbSet<PoliticalLeaders> PoliticalLeaders { get; set; }
         public virtual DbSet<PoliticalParty> PoliticalParty { get; set; }
         public virtual DbSet<Volunteers> Volunteers { get; set; }
+        public virtual DbSet<VolunteerVillages> VolunteerVillages { get; set; }
         public virtual DbSet<VotersInfo> VotersInfo { get; set; }
         public virtual DbSet<VotingKendras> VotingKendras { get; set; }
         public virtual DbSet<Votings> Votings { get; set; }
@@ -72,6 +69,17 @@ namespace SampleCoreWebApi.DataModel.Models
                     .HasConstraintName("FK_ConstituencyVillages_Constituencies");
             });
 
+            modelBuilder.Entity<EventLog>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.EventId).HasColumnName("EventID");
+
+                entity.Property(e => e.LogLevel).HasMaxLength(50);
+
+                entity.Property(e => e.Message).HasMaxLength(4000);
+            });
+
             modelBuilder.Entity<PoliticalLeaders>(entity =>
             {
                 entity.HasKey(e => e.PoliticalLeaderId);
@@ -88,7 +96,9 @@ namespace SampleCoreWebApi.DataModel.Models
 
                 entity.Property(e => e.PoliticalLeaderName).HasMaxLength(500);
 
-                entity.Property(e => e.PoliticalPartyPassword).HasMaxLength(50);
+                entity.Property(e => e.PoliticalPartyEmail)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
 
                 entity.HasOne(d => d.Constituencies)
                     .WithMany(p => p.PoliticalLeaders)
@@ -126,19 +136,37 @@ namespace SampleCoreWebApi.DataModel.Models
 
                 entity.Property(e => e.VolunteerAddress).HasMaxLength(500);
 
-                entity.Property(e => e.VolunteerMobileNumber).HasMaxLength(500);
+                entity.Property(e => e.VolunteerEmail)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.VolunteerMobileNumber).HasMaxLength(10);
 
                 entity.Property(e => e.VolunteerName).HasMaxLength(500);
+
+                entity.Property(e => e.VolunteerPassword).HasMaxLength(50);
 
                 entity.HasOne(d => d.PoliticalLeaders)
                     .WithMany(p => p.Volunteers)
                     .HasForeignKey(d => d.PoliticalLeadersId)
                     .HasConstraintName("FK_Volunteers_PoliticalLeaders");
+            });
+
+            modelBuilder.Entity<VolunteerVillages>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.VillageId).HasColumnName("VillageID");
 
                 entity.HasOne(d => d.Village)
-                    .WithMany(p => p.Volunteers)
+                    .WithMany(p => p.VolunteerVillages)
                     .HasForeignKey(d => d.VillageId)
-                    .HasConstraintName("FK_Volunteers_ConstituencyVillages");
+                    .HasConstraintName("FK_VolunteerVillages_ConstituencyVillages");
+
+                entity.HasOne(d => d.Volunteer)
+                    .WithMany(p => p.VolunteerVillages)
+                    .HasForeignKey(d => d.VolunteerId)
+                    .HasConstraintName("FK_VolunteerVillages_Volunteers");
             });
 
             modelBuilder.Entity<VotersInfo>(entity =>

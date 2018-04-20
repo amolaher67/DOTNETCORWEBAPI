@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace SampleCoreWebApi.DataModel.Models
+namespace SampleCoreWebApi.BusinessEntities.EntityModels
 {
-    public partial class Volunteers
+    public class EntityVolunteers
     {
-        public Volunteers()
-        {
-            VolunteerVillages = new HashSet<VolunteerVillages>();
-            Votings = new HashSet<Votings>();
-        }
-
         public int VolunteerId { get; set; }
         public string VolunteerEmail { get; set; }
         public string VolunteerPassword { get; set; }
@@ -21,9 +16,5 @@ namespace SampleCoreWebApi.DataModel.Models
         public DateTime? CreatedDate { get; set; }
         public string CreatedBy { get; set; }
         public bool? IsDelete { get; set; }
-
-        public PoliticalLeaders PoliticalLeaders { get; set; }
-        public ICollection<VolunteerVillages> VolunteerVillages { get; set; }
-        public ICollection<Votings> Votings { get; set; }
     }
 }

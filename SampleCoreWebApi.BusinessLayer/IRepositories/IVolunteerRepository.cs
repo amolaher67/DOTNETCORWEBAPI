@@ -8,9 +8,9 @@ using SampleCoreWebApi.DataModel.Models;
 
 namespace SampleCoreWebApi.BusinessLayer.IRepositories
 {
-    public interface IPoliticalRepository
+    public interface IVolunteerRepository
     {
-        Task<ICollection<EntityPoliticalLeaders>> GetAllPoliticalLeaders();
-        Task<EntityPoliticalLeaders> ValidatePoliticlLeader(string mobileNumber, string password);
+        
+        Task<EntityVolunteers> ValidateUser(string mobileNumber, string password);
     }
 }

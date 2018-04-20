@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SampleCoreWebApi.BusinessEntities.EntityModels
 {
-    public class Entity_PoliticalLeaders
+    public class EntityPoliticalLeaders
     {
         public int PoliticalLeaderId { get; set; }
         public string PoliticalLeaderName { get; set; }

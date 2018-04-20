@@ -9,16 +9,21 @@ namespace SampleCoreWebApi.DataModel.UOWGenericRepo
     public interface IGenericRepository<T> where T : class
     {
         T Add(T t);
+        void AddUnCommited(T t);
         Task<T> AddAsyn(T t);
+        void AddUnCommitedAsync(T t);
+
         int Count();
         Task<int> CountAsync();
         void Delete(T entity);
         Task<int> DeleteAsyn(T entity);
-        void Dispose();
-        T Find(Expression<Func<T, bool>> match);
+
+        T FindFirst(Expression<Func<T, bool>> filter, params Expression<Func<T, bool>>[] includes);
+        Task<T> FindFirstAsync(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes);
+
         ICollection<T> FindAll(Expression<Func<T, bool>> match);
         Task<ICollection<T>> FindAllAsync(Expression<Func<T, bool>> match);
-        Task<T> FindAsync(Expression<Func<T, bool>> match);
+
         IQueryable<T> FindBy(Expression<Func<T, bool>> predicate);
         Task<ICollection<T>> FindByAsyn(Expression<Func<T, bool>> predicate);
         T Get(int id);
@@ -26,9 +31,13 @@ namespace SampleCoreWebApi.DataModel.UOWGenericRepo
         Task<ICollection<T>> GetAllAsyn();
         IQueryable<T> GetAllIncluding(params Expression<Func<T, object>>[] includeProperties);
         Task<T> GetAsync(int id);
-        void Save();
-        Task<int> SaveAsync();
+
         T Update(T t, object key);
         Task<T> UpdateAsyn(T t, object key);
+
+        //New func
+
+        List<T> GetWithFilterAndInclude(Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includes);
     }
 }

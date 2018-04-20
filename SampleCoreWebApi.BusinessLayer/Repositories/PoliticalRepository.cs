@@ -22,11 +22,22 @@ namespace SampleCoreWebApi.BusinessLayer.Repositories
             _mapper = mapper;
         }
 
-        public async Task<ICollection<Entity_PoliticalLeaders>> GetAllPoliticalLeaders()
+        public async Task<ICollection<EntityPoliticalLeaders>> GetAllPoliticalLeaders()
         {
             var politicalLeaders = await _unitOfWork.PoliticalRepository.GetAllAsyn();
-            return _mapper.Map<ICollection<Entity_PoliticalLeaders>>(politicalLeaders);
+            return _mapper.Map<ICollection<EntityPoliticalLeaders>>(politicalLeaders);
         }
+
+        public async Task<EntityPoliticalLeaders> ValidatePoliticlLeader(string mobileNumber, string password)
+        {
+            if (string.IsNullOrEmpty(mobileNumber) || string.IsNullOrEmpty(password)) return null;
+
+            var politicalLeaders = await
+                 _unitOfWork.PoliticalRepository.FindFirstAsync(s => s.PoliticalLeaderMobileNumber == mobileNumber && s.PoliticalLeaderMobileNumber == password);
+
+            return politicalLeaders != null ? _mapper.Map<EntityPoliticalLeaders>(politicalLeaders) : null;
+        }
+
     }
 
 }

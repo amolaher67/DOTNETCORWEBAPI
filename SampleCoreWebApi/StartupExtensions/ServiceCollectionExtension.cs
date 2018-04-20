@@ -1,19 +1,22 @@
 ﻿using System;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using SampleCoreWebApi.BusinessLayer.IRepositories;
 using SampleCoreWebApi.BusinessLayer.Repositories;
 using SampleCoreWebApi.DataModel.Models;
 using SampleCoreWebApi.DataModel.UOWGenericRepo;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace SampleCoreWebApi
+namespace SampleCoreWebApi.StartupExtensions
 {
     public static class ServiceCollectionExtension
     {
@@ -52,6 +55,24 @@ namespace SampleCoreWebApi
 
         }
 
+        public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration Configuration)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
+                option =>
+                {
+                    option.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["Jwt:Issuer"],
+                        ValidAudience = Configuration["Jwt:Issuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    };
+                });
+        }
+        
         //public static void AddResponseCompressionWithSettings(this IServiceCollection services)
         //{
         //    services.AddResponseCompression(options =>

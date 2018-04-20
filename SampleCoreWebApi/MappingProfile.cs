@@ -13,7 +13,8 @@ namespace SampleCoreWebApi
         public MappingProfile()
         {
             // Add as many of these lines as you need to map your objects
-            CreateMap<PoliticalLeaders,Entity_PoliticalLeaders>();
+            CreateMap<PoliticalLeaders,EntityPoliticalLeaders>();
+            CreateMap<Volunteers, EntityVolunteers>();
         }
     }
 }

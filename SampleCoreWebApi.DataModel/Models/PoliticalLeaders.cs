@@ -12,7 +12,7 @@ namespace SampleCoreWebApi.DataModel.Models
 
         public int PoliticalLeaderId { get; set; }
         public string PoliticalLeaderName { get; set; }
-        public string PoliticalPartyPassword { get; set; }
+        public string PoliticalPartyEmail { get; set; }
         public string PoliticalLeaderAddress { get; set; }
         public string PoliticalLeaderMobileNumber { get; set; }
         public int? ConstituenciesId { get; set; }

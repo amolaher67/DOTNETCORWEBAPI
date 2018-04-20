@@ -7,7 +7,7 @@ namespace SampleCoreWebApi.DataModel.Models
     {
         public ConstituencyVillages()
         {
-            Volunteers = new HashSet<Volunteers>();
+            VolunteerVillages = new HashSet<VolunteerVillages>();
             VotersInfo = new HashSet<VotersInfo>();
             VotingKendras = new HashSet<VotingKendras>();
         }
@@ -21,7 +21,7 @@ namespace SampleCoreWebApi.DataModel.Models
         public string CreatedBy { get; set; }
 
         public Constituencies Constituencies { get; set; }
-        public ICollection<Volunteers> Volunteers { get; set; }
+        public ICollection<VolunteerVillages> VolunteerVillages { get; set; }
         public ICollection<VotersInfo> VotersInfo { get; set; }
         public ICollection<VotingKendras> VotingKendras { get; set; }
     }

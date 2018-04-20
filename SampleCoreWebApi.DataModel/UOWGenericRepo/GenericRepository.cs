@@ -11,136 +11,198 @@ namespace SampleCoreWebApi.DataModel.UOWGenericRepo
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        protected DataContext Context;
+        #region GLobal Variables
+        private ElectionContext _context;
+        private DbSet<T> _dbSet;
+        #endregion
 
-        public GenericRepository(DataContext context)
+        #region Constructor
+        public GenericRepository(ElectionContext context)
         {
-            Context = context;
+            _context = context;
+            _dbSet = context.Set<T>();
         }
+        #endregion
 
+        #region Get Records
         public IQueryable<T> GetAll()
         {
-            return Context.Set<T>();
+            return _dbSet;
         }
 
         public virtual async Task<ICollection<T>> GetAllAsyn()
         {
-            return await Context.Set<T>().ToListAsync();
+            return await _dbSet.ToListAsync();
         }
 
         public virtual T Get(int id)
         {
-            return Context.Set<T>().Find(id);
+            return _dbSet.Find(id);
         }
 
         public virtual async Task<T> GetAsync(int id)
         {
-            return await Context.Set<T>().FindAsync(id);
+            return await _dbSet.FindAsync(id);
         }
+        #endregion
 
+        #region Insert Records with or without UOW
         public virtual T Add(T t)
         {
-            Context.Set<T>().Add(t);
-            Context.SaveChanges();
+            _dbSet.Add(t);
+            _context.SaveChanges();
             return t;
+        }
+
+        public virtual void AddUncommited(T t)
+        {
+            _dbSet.Add(t);
         }
 
         public virtual async Task<T> AddAsyn(T t)
         {
-            Context.Set<T>().Add(t);
-            await Context.SaveChangesAsync();
+            _dbSet.Add(t);
+            await _context.SaveChangesAsync();
             return t;
 
         }
 
-        public virtual T Find(Expression<Func<T, bool>> match)
+        public virtual async Task AddUncommitedAsyn(T t)
         {
-            return Context.Set<T>().SingleOrDefault(match);
+            await _dbSet.AddAsync(t);
+        }
+        #endregion
+
+        #region Find Records or First record
+        public T FindFirst(Expression<Func<T, bool>> filter, params Expression<Func<T, bool>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            query = includes.Aggregate(query, (current, include) => current.Include(include));
+
+            return query.SingleOrDefault(filter);
         }
 
-        public virtual async Task<T> FindAsync(Expression<Func<T, bool>> match)
+        public virtual async Task<T> FindFirstAsync(Expression<Func<T, bool>> filter, params Expression<Func<T, object>>[] includes)
         {
-            return await Context.Set<T>().SingleOrDefaultAsync(match);
-        }
+            IQueryable<T> query = _dbSet;
+            query = includes.Aggregate(query, (current, include) => current.Include(include));
 
+            return await query.SingleOrDefaultAsync(filter);
+        }
         public ICollection<T> FindAll(Expression<Func<T, bool>> match)
         {
-            return Context.Set<T>().Where(match).ToList();
+            return _dbSet.Where(match).ToList();
         }
 
         public async Task<ICollection<T>> FindAllAsync(Expression<Func<T, bool>> match)
         {
-            return await Context.Set<T>().Where(match).ToListAsync();
+            return await _dbSet.Where(match).ToListAsync();
         }
+        #endregion
 
+        #region Delete Records
         public virtual void Delete(T entity)
         {
-            Context.Set<T>().Remove(entity);
-            Context.SaveChanges();
+            _dbSet.Remove(entity);
+            _context.SaveChanges();
+        }
+
+        public virtual void DeleteUnCommited(T entity)
+        {
+            _dbSet.Remove(entity);
         }
 
         public virtual async Task<int> DeleteAsyn(T entity)
         {
-            Context.Set<T>().Remove(entity);
-            return await Context.SaveChangesAsync();
+            _dbSet.Remove(entity);
+            return await _context.SaveChangesAsync();
         }
+        #endregion
 
+        #region Update
         public virtual T Update(T t, object key)
         {
             if (t == null)
                 return null;
-            T exist = Context.Set<T>().Find(key);
+            T exist = _dbSet.Find(key);
             if (exist != null)
             {
-                Context.Entry(exist).CurrentValues.SetValues(t);
-                Context.SaveChanges();
+                _context.Entry(exist).CurrentValues.SetValues(t);
+                _context.SaveChanges();
             }
             return exist;
+        }
+
+        public virtual void UpdateUncommited(T t, object key)
+        {
+            if (t == null)
+                return;
+            T exist = _dbSet.Find(key);
+            if (exist != null)
+            {
+                _context.Entry(exist).CurrentValues.SetValues(t);
+            }
         }
 
         public virtual async Task<T> UpdateAsyn(T t, object key)
         {
             if (t == null)
                 return null;
-            T exist = await Context.Set<T>().FindAsync(key);
+            T exist = await _dbSet.FindAsync(key);
             if (exist != null)
             {
-                Context.Entry(exist).CurrentValues.SetValues(t);
-                await Context.SaveChangesAsync();
+                _context.Entry(exist).CurrentValues.SetValues(t);
+                await _context.SaveChangesAsync();
             }
             return exist;
         }
 
+        public virtual async Task UpdateUnCommitedAsyn(T t, object key)
+        {
+            if (t == null)
+                return;
+            T exist = await _dbSet.FindAsync(key);
+            if (exist != null)
+            {
+                _context.Entry(exist).CurrentValues.SetValues(t);
+            }
+        }
+
+        #endregion
+
+        #region Find Records with Conditions
+        public List<T> GetWithFilterAndInclude(Expression<Func<T, bool>> filter = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            query = includes.Aggregate(query, (current, include) => current.Include(include));
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            if (orderBy != null)
+                query = orderBy(query);
+
+            return query.AsNoTracking().ToList();
+        }
+
         public int Count()
         {
-            return Context.Set<T>().Count();
+            return _dbSet.Count();
         }
 
         public async Task<int> CountAsync()
         {
-            return await Context.Set<T>().CountAsync();
+            return await _dbSet.CountAsync();
         }
-
-        public virtual void Save()
-        {
-
-            Context.SaveChanges();
-        }
-
-        public virtual async Task<int> SaveAsync()
-        {
-            return await Context.SaveChangesAsync();
-        }
-
         public virtual IQueryable<T> FindBy(Expression<Func<T, bool>> predicate)
         {
-            IQueryable<T> query = Context.Set<T>().Where(predicate);
-            return query;
+            IQueryable<T> query = _dbSet.Where(predicate);
+            return query.AsNoTracking();
         }
 
         public virtual async Task<ICollection<T>> FindByAsyn(Expression<Func<T, bool>> predicate)
         {
-            return await Context.Set<T>().Where(predicate).ToListAsync();
+            return await _dbSet.Where(predicate).AsNoTracking().ToListAsync();
         }
 
         public IQueryable<T> GetAllIncluding(params Expression<Func<T, object>>[] includeProperties)
@@ -151,24 +213,18 @@ namespace SampleCoreWebApi.DataModel.UOWGenericRepo
                 queryable = queryable.Include<T, object>(includeProperty);
             }
 
-            return queryable;
+            return queryable.AsNoTracking();
         }
 
-        private bool _disposed = false;
-        protected virtual void Dispose(bool disposing)
+        public void AddUnCommited(T t)
         {
-            if (this._disposed) return;
-            if (disposing)
-            {
-                Context.Dispose();
-            }
-            this._disposed = true;
+            throw new NotImplementedException();
         }
 
-        public void Dispose()
+        public void AddUnCommitedAsync(T t)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            throw new NotImplementedException();
         }
+        #endregion
     }
 }
