@@ -7,20 +7,23 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SampleCoreWebApi.BusinessEntities.EntityModels;
 using SampleCoreWebApi.BusinessLayer.IRepositories;
+using SampleCoreWebApi.Cache;
 using SampleCoreWebApi.RequestModels;
 
 namespace SampleCoreWebApi.Controllers
 {
     [Route("api/[controller]")]
-    public class TokenController : Controller
+    public class TokenController : BaseController
     {
         private readonly IConfiguration _config;
         private readonly IVolunteerRepository _volunteerRepository;
-        public TokenController(IConfiguration config, IVolunteerRepository volunteerRepository)
+
+        public TokenController(IConfiguration config, IVolunteerRepository volunteerRepository, IMemoryCache cache) : base(cache)
         {
             _config = config;
             _volunteerRepository = volunteerRepository;
@@ -32,6 +35,8 @@ namespace SampleCoreWebApi.Controllers
         {
             try
             {
+
+
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
@@ -73,6 +78,29 @@ namespace SampleCoreWebApi.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("CacheTryGetValueSet")]
+        public IActionResult CacheTryGetValueSet()
+        {
+            var list = GetOrSet(CacheKeysWithOption.Entry, GetStringList);
+            return new JsonResult(list);
+        }
+
+        [NonAction]
+        public List<String> GetStringList()
+        {
+            List<String> str = new List<string>()
+            {
+                "aaaaa",
+                "sssdasdas",
+                "dasdasdas"
+            };
+            return str;
+        }
+
+
 
     }
 }

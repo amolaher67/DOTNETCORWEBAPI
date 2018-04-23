@@ -26,13 +26,17 @@ namespace SampleCoreWebApi.StartupExtensions
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPoliticalRepository, PoliticalRepository>();
-
+            services.AddScoped<IVolunteerRepository, VolunteersRepository>();
             #endregion
 
             #region AutoMapper
 
             services.AddAutoMapper();
 
+            #endregion
+
+            #region InMemoryCache
+            services.AddMemoryCache();
             #endregion
 
             #region MVC
@@ -48,11 +52,11 @@ namespace SampleCoreWebApi.StartupExtensions
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+               
             });
 
             #endregion
-
-
+            
         }
 
         public static void AddJwtAuthentication(this IServiceCollection services, IConfiguration Configuration)
@@ -72,7 +76,7 @@ namespace SampleCoreWebApi.StartupExtensions
                     };
                 });
         }
-        
+
         //public static void AddResponseCompressionWithSettings(this IServiceCollection services)
         //{
         //    services.AddResponseCompression(options =>

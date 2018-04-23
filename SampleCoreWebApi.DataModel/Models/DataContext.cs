@@ -6,6 +6,10 @@ namespace SampleCoreWebApi.DataModel.Models
 {
     public partial class ElectionContext : DbContext
     {
+        public ElectionContext(DbContextOptions options) :base(options)
+        {
+        }
+
         public virtual DbSet<Constituencies> Constituencies { get; set; }
         public virtual DbSet<ConstituencyVillages> ConstituencyVillages { get; set; }
         public virtual DbSet<EventLog> EventLog { get; set; }

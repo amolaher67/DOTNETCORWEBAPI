@@ -20,7 +20,7 @@ namespace SampleCoreWebApi.StartupExtensions
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-                c.RoutePrefix = "string.Empty";
+                c.RoutePrefix = string.Empty;
             });
             #endregion
 
@@ -30,9 +30,8 @@ namespace SampleCoreWebApi.StartupExtensions
             //Support JWT Authentication
             app.UseAuthentication();
 
-
             //Global Response for all API
-            app.UseResponseWrapper();
+            //app.UseResponseWrapper();
 
             //Support MVC
             app.UseMvc();
